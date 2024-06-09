@@ -1,0 +1,55 @@
+/*********************************************
+ * OPL 22.1.1.0 Model
+ * Author: HP
+ * Creation Date: 2 cze 2024 at 11:26:12
+ *********************************************/
+using CP;
+ 
+// Zmienne
+int n = ...;
+
+// Dane wejściowe
+tuple Constraint {
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    string relation;
+}
+
+tuple Cell {
+    int row;
+    int col;
+    int value;
+}
+
+{Constraint} conditions=...;
+{Cell} initialValues=...;
+
+dvar int x[1..n][1..n] in 1..n;
+
+
+subject to {
+    // Inicjalizacja wartości w komórkach
+    forall(cell in initialValues)
+        if (cell.value != 0)
+            x[cell.row][cell.col] == cell.value;
+
+    // Unikalność w wierszach
+    forall(i in 1..n)
+        forall(k1 in 1..n, k2 in k1+1..n)
+            x[i][k1] != x[i][k2];
+
+    // Unikalność w kolumnach
+    forall(j in 1..n)
+        forall(k1 in 1..n, k2 in k1+1..n)
+            x[k1][j] != x[k2][j];
+
+    // Ograniczenia relacyjne
+    forall(c in conditions) {
+        if (c.relation == ">")
+            x[c.x1][c.y1] > x[c.x2][c.y2];
+        else if (c.relation == "<")
+            x[c.x1][c.y1] < x[c.x2][c.y2];
+    }
+}
